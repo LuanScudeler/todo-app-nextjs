@@ -1,17 +1,19 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useState } from 'react'
-import useSWR from 'swr'
 import { Footer } from '../components/Footer'
 import { createTodo, useTodos } from './index-api'
 
 const Home: NextPage = () => {
-  const [itemTitle, setItemTitle] = useState<string>()
-  const { data: todoItems = [], isLoading, isError, mutate } = useTodos()
+  const [itemTitle, setItemTitle] = useState<string>('')
+  const [isMutationError, setIsMutationError] = useState<string>()
+  const { data: todoItems = [], isLoading, isError: isFetchError, mutate } = useTodos()
 
-  const handleOnKetDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleOnKeyDown = async (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === 'Enter' && itemTitle) {
-      mutate({ id: 111, title: itemTitle })
+      const { error } = await mutate({ title: itemTitle })
+      
+      setIsMutationError(error)
       setItemTitle('')
     }
   }
@@ -28,7 +30,8 @@ const Home: NextPage = () => {
         <h1 className="m-0 leading-loose text-6xl">Todo Next App</h1>
         <div>
           <span className="text-red-600">
-            {isError && 'Failed to fetch todos'}
+            {isFetchError && 'Failed to fetch todos'}
+            {isMutationError && 'Failed to create todo'}
           </span>
           <span className="text-neutral-900">{isLoading && 'Loading...'}</span>
           <input
@@ -37,7 +40,7 @@ const Home: NextPage = () => {
             placeholder="type a new todo"
             value={itemTitle}
             onChange={(e) => setItemTitle(e.target.value)}
-            onKeyDown={(e) => handleOnKetDown(e)}
+            onKeyDown={(e) => handleOnKeyDown(e)}
           />
           {todoItems.map((todoItem) => (
             <div key={todoItem.id}>{todoItem.title}</div>

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import useSWR from 'swr'
+import { useState } from 'react' 
+import useSWR from 'swr'  
 import { fetcher, post } from './api'
 
 export const useTodos = () => {
@@ -9,14 +9,24 @@ export const useTodos = () => {
     mutate: mutateTodos,
   } = useSWR<TodoItem[], Error>('/api/todos', fetcher)
 
-  const mutate = (todoItem: TodoItem) => {
+  const mutate = async (todoItem: CreateTodoItem) =>  {
     const todoItems = data || []
-    const optimisticData = [...todoItems, todoItem]
-    console.log(optimisticData)
-    mutateTodos(createTodo(todoItem, optimisticData), {
-      optimisticData,
-      rollbackOnError: true,
-    })
+    const optimisticData = [...todoItems, { id: 11, title: todoItem.title}]
+    let error;
+
+    try {
+      await mutateTodos(createTodo(todoItem, optimisticData), {
+        optimisticData,
+        rollbackOnError: true,
+      })
+    } catch (err) {
+      error = 'Unknown Error'
+      if (err instanceof Error) error = err.message
+    }
+
+    return {
+      error
+    }
   }
 
   return {
@@ -28,9 +38,9 @@ export const useTodos = () => {
 }
 
 export const createTodo = async (
-  body: TodoItem,
+  body: CreateTodoItem,
   optimisticData: TodoItem[]
 ) => {
-  await post('/api/todo/1', body)
+  await post('/api/todo', body)
   return optimisticData
 }
