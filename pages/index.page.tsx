@@ -4,20 +4,26 @@ import { useState } from 'react'
 import { Footer } from '../components/Footer'
 import { createTodo, useTodos } from './index-api'
 
+interface TodoForm {
+  todo_title: { value: string };
+}
+
 const Home: NextPage = () => {
   const [itemTitle, setItemTitle] = useState<string>('')
   const [isMutationError, setIsMutationError] = useState<string>()
   const { data: todoItems = [], isLoading, isError: isFetchError, mutate } = useTodos()
 
-  const handleOnKeyDown = async (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' && itemTitle) {
-      const { error } = await mutate({ title: itemTitle })
-      
-      setIsMutationError(error)
-      setItemTitle('')
-    }
+  const handleSubmit = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+
+    const target = e.target as typeof e.target & TodoForm;
+    const { error } = await mutate({ title: target.todo_title.value})
+
+    setIsMutationError(error)
+    setItemTitle('')
   }
 
+  // TODO: Configure MSW
   return (
     <div className="px-8">
       <Head>
@@ -34,14 +40,19 @@ const Home: NextPage = () => {
             {isMutationError && 'Failed to create todo'}
           </span>
           <span className="text-neutral-900">{isLoading && 'Loading...'}</span>
-          <input
-            type="text"
-            className="h-8 border-2 px-4 block mb-4"
-            placeholder="type a new todo"
-            value={itemTitle}
-            onChange={(e) => setItemTitle(e.target.value)}
-            onKeyDown={(e) => handleOnKeyDown(e)}
-          />
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="first" className='font-semibold leading-loose'>Todo title</label>
+            <input
+              type="text"
+              id="todo-title"
+              name="todo_title"
+              className="h-8 border-2 px-4 block mb-4"
+              placeholder="type a new todo"
+              value={itemTitle}
+              onChange={(e) => setItemTitle(e.target.value)}
+              required
+            />
+          </form>
           {todoItems.map((todoItem) => (
             <div key={todoItem.id}>{todoItem.title}</div>
           ))}
