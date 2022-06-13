@@ -1,5 +1,5 @@
-import { useState } from 'react' 
 import useSWR from 'swr'  
+import { uuid } from '../lib/utils/uuid'
 import { fetcher, post } from './api'
 
 export const useTodos = () => {
@@ -11,7 +11,7 @@ export const useTodos = () => {
 
   const mutate = async (todoItem: CreateTodoItem) =>  {
     const todoItems = data || []
-    const optimisticData = [...todoItems, { id: 11, title: todoItem.title}]
+    const optimisticData = [...todoItems, { id: parseInt(uuid()), title: todoItem.title}]
     let error;
 
     try {
