@@ -1,4 +1,4 @@
-import useSWR from 'swr'  
+import useSWR from 'swr'
 import { uuid } from '../lib/utils/uuid'
 import { fetcher, post } from './api'
 
@@ -9,10 +9,13 @@ export const useTodos = () => {
     mutate: mutateTodos,
   } = useSWR<TodoItem[], Error>('/api/todos', fetcher)
 
-  const mutate = async (todoItem: CreateTodoItem) =>  {
+  const mutate = async (todoItem: CreateTodoItem) => {
     const todoItems = data || []
-    const optimisticData = [...todoItems, { id: parseInt(uuid()), title: todoItem.title}]
-    let error;
+    const optimisticData = [
+      ...todoItems,
+      { id: parseInt(uuid()), title: todoItem.title },
+    ]
+    let error
 
     try {
       await mutateTodos(createTodo(todoItem, optimisticData), {
@@ -22,10 +25,12 @@ export const useTodos = () => {
     } catch (err) {
       error = 'Unknown Error'
       if (err instanceof Error) error = err.message
+
+      console.error(error)
     }
 
     return {
-      error
+      error,
     }
   }
 

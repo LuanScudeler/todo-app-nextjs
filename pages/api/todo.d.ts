@@ -3,4 +3,4 @@ interface TodoItem {
   title: string
 }
 
-type CreateTodoItem = Omit<TodoItem, "id">;
+type CreateTodoItem = Omit<TodoItem, 'id'>

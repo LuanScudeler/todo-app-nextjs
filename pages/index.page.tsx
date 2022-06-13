@@ -2,28 +2,32 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useState } from 'react'
 import { Footer } from '../components/Footer'
-import { createTodo, useTodos } from './index-api'
+import { useTodos } from './index-api'
 
 interface TodoForm {
-  todo_title: { value: string };
+  todo_title: { value: string }
 }
 
 const Home: NextPage = () => {
   const [itemTitle, setItemTitle] = useState<string>('')
   const [isMutationError, setIsMutationError] = useState<string>()
-  const { data: todoItems = [], isLoading, isError: isFetchError, mutate } = useTodos()
+  const {
+    data: todoItems = [],
+    isLoading,
+    isError: isFetchError,
+    mutate,
+  } = useTodos()
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    const target = e.target as typeof e.target & TodoForm;
-    const { error } = await mutate({ title: target.todo_title.value})
+    const target = e.target as typeof e.target & TodoForm
+    const { error } = await mutate({ title: target.todo_title.value })
 
     setIsMutationError(error)
     setItemTitle('')
   }
 
-  // TODO: Configure MSW
   return (
     <div className="px-8">
       <Head>
@@ -41,7 +45,9 @@ const Home: NextPage = () => {
           </span>
           <span className="text-neutral-900">{isLoading && 'Loading...'}</span>
           <form onSubmit={handleSubmit}>
-            <label htmlFor="first" className='font-semibold leading-loose'>Todo title</label>
+            <label htmlFor="first" className="font-semibold leading-loose">
+              Todo title
+            </label>
             <input
               type="text"
               id="todo-title"
