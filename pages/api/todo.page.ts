@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { title } from 'process'
 import db, { DBData } from '../../lib/lowdb'
 
 export default async function handler(

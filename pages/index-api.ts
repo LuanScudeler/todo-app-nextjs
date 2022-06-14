@@ -47,5 +47,6 @@ export const createTodo = async (
   optimisticData: TodoItem[]
 ) => {
   await post('/api/todo', body)
+
   return optimisticData
 }
