@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/**/*.ts": {
+    "src/pages/**/*": {
       "includeFiles": "lib/db.json"
     }
   }
