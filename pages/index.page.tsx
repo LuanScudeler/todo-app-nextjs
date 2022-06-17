@@ -70,7 +70,7 @@ const Home: NextPage = () => {
           </form>
           <ul>
             {todoItems.map((todoItem) => (
-              <li key={todoItem.id}>{todoItem.title}</li>
+              <li key={todoItem.timestamp}>{todoItem.title}</li>
             ))}
           </ul>
         </div>

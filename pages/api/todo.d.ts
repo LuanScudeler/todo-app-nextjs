@@ -1,6 +1,6 @@
 interface TodoItem {
-  id: number
   title: string
+  timestamp: string
 }
 
-type CreateTodoItem = Omit<TodoItem, 'id'>
+type CreateTodoItem = Omit<TodoItem, 'timestamp'>
