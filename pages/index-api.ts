@@ -1,3 +1,4 @@
+import { getErrorMessage } from 'lib/utils/getErrorMessage'
 import useSWR from 'swr'
 import { uuid } from '../lib/utils/uuid'
 import { fetcher, post } from './api'
@@ -13,7 +14,7 @@ export const useTodos = () => {
     const todoItems = data || []
     const optimisticData = [
       ...todoItems,
-      { id: parseInt(uuid()), title: todoItem.title },
+      { timestamp: new Date().toISOString(), title: todoItem.title },
     ]
     let error
 
@@ -23,10 +24,7 @@ export const useTodos = () => {
         rollbackOnError: true,
       })
     } catch (err) {
-      error = 'Unknown Error'
-      if (err instanceof Error) error = err.message
-
-      console.error(error)
+      console.error(getErrorMessage(error))
     }
 
     return {

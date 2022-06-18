@@ -1,4 +1,5 @@
 import { MongoClient } from 'mongodb'
+import { getErrorMessage } from './utils/getErrorMessage'
 
 const uri = process.env.MONGODB_URI
 const options = {}
@@ -25,8 +26,8 @@ const run = async (): Promise<MongoClient> => {
       const prodClient = new MongoClient(uri, options)
       clientPromise = await prodClient.connect()
     }
-  } catch (e) {
-    console.error(e.message)
+  } catch (error) {
+    console.error(getErrorMessage(error))
   }
 
   return clientPromise

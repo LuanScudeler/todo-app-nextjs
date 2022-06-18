@@ -1,4 +1,4 @@
-import clientPromise from 'lib/mongodb'
+import { COLLECTIONS, initdb } from 'lib/initdb'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(
@@ -7,13 +7,11 @@ export default async function handler(
 ) {
   let todosCursor
   try {
-    const client = await clientPromise
-    const db = client.db('nextjs_app_db')
-    const todos = db.collection<TodoItem>('todos')
+    const todos = await initdb<TodoItem>(COLLECTIONS.TODOS)
 
     todosCursor = await todos.find()
-  } catch (e) {
-    console.error(e)
+  } catch (err) {
+    console.error(err)
     res.status(500).end()
   }
 
