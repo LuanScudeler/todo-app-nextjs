@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import db, { DBData } from '../../lib/lowdb'
+import clientPromise from 'lib/mongodb'
+import { getErrorMessage } from 'lib/utils/getErrorMessage'
+import { COLLECTIONS, initdb } from 'lib/initdb'
 
 export default async function handler(
   req: NextApiRequest,
@@ -9,23 +11,23 @@ export default async function handler(
 
   switch (method) {
     case 'POST':
-      const dbInstance = await db
+      let result
+      try {
+        const todos = await initdb<InsertTodoItem>(COLLECTIONS.TODOS)
 
-      dbInstance.data?.todoItems.push(autoIncrementId(body, dbInstance.data))
-      await dbInstance.write()
-      res.status(200).json({})
+        result = await todos.insertOne({
+          title: body.title,
+          timestamp: new Date(),
+        })
+      } catch (err) {
+        console.error(err)
+        res.status(500).send({ message: getErrorMessage(err) })
+      }
+
+      res.status(200).json(result)
 
       break
     default:
       res.status(405).end(`Method ${method} Not Allowed`)
-  }
-}
-
-const autoIncrementId = (bodyObj: CreateTodoItem, dbData: DBData): TodoItem => {
-  const itemsLength = dbData.todoItems.length
-
-  return {
-    id: itemsLength ? dbData.todoItems[itemsLength - 1].id + 1 : 0,
-    title: bodyObj.title,
   }
 }
