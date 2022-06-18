@@ -1,36 +1,38 @@
 import { MongoClient } from 'mongodb'
+import { type } from 'os'
 import { getErrorMessage } from './utils/getErrorMessage'
 
 const uri = process.env.MONGODB_URI
 const options = {}
 
-let clientPromise: Promise<MongoClient>
+let mongoClient: MongoClient
+let globalWithMongo = global as typeof globalThis & {
+  mongoClientPromise: MongoClient
+}
 
 if (!uri) {
   throw new Error('Please add your Mongo URI to .env.local')
 }
 
-const run = async (): Promise<MongoClient> => {
+export const connectMongo = async (): Promise<MongoClient> => {
   try {
     if (process.env.NODE_ENV === 'development') {
-      if (!global._mongoClientPromise) {
+      if (!globalWithMongo.mongoClientPromise) {
         const client = new MongoClient(uri, options)
 
-        global._mongoClientPromise = await client.connect()
+        globalWithMongo.mongoClientPromise = await client.connect()
         await client.db('admin').command({ ping: 1 })
       }
 
-      clientPromise = global._mongoClientPromise
+      mongoClient = globalWithMongo.mongoClientPromise
     } else {
       // In production mode, it's best to not use a global variable.
       const prodClient = new MongoClient(uri, options)
-      clientPromise = await prodClient.connect()
+      mongoClient = await prodClient.connect()
     }
   } catch (error) {
     console.error(getErrorMessage(error))
   }
 
-  return clientPromise
+  return mongoClient
 }
-
-export default run()
