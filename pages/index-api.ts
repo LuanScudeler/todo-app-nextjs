@@ -1,6 +1,5 @@
 import { getErrorMessage } from 'lib/utils/getErrorMessage'
 import useSWR from 'swr'
-import { uuid } from '../lib/utils/uuid'
 import { fetcher, post } from './api'
 
 export const useTodos = () => {
@@ -16,7 +15,7 @@ export const useTodos = () => {
       ...todoItems,
       { timestamp: new Date().toISOString(), title: todoItem.title },
     ]
-    let error
+    let error = ''
 
     try {
       await mutateTodos(createTodo(todoItem, optimisticData), {
@@ -24,7 +23,8 @@ export const useTodos = () => {
         rollbackOnError: true,
       })
     } catch (err) {
-      console.error(getErrorMessage(error))
+      error = getErrorMessage(err)
+      console.error(error)
     }
 
     return {

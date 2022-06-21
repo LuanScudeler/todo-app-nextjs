@@ -70,7 +70,12 @@ const Home: NextPage = () => {
           </form>
           <ul>
             {todoItems.map((todoItem) => (
-              <li key={todoItem.timestamp}>{todoItem.title}</li>
+              <li key={todoItem.timestamp}>
+                {todoItem.title}
+                <button type="button" aria-label="Delete note">
+                  <b>X</b>
+                </button>
+              </li>
             ))}
           </ul>
         </div>
