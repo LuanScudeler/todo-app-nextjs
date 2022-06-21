@@ -1,8 +1,9 @@
 interface TodoItem {
   title: string
   timestamp: string
+  _id: string
 }
 
-type InsertTodoItem = Omit<TodoItem, 'timestamp'> & { timestamp: Date }
+type CreateTodoItem = Omit<TodoItem, 'timestamp' | '_id'>
 
-type CreateTodoItem = Omit<TodoItem, 'timestamp'>
+type InsertTodoItem = CreateTodoItem & { timestamp: Date }

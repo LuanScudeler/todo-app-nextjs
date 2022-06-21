@@ -29,7 +29,14 @@ const Home: NextPage = () => {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault()
 
-    const { error } = await mutate({ title: itemTitle })
+    const { error } = await mutate.create({ title: itemTitle })
+
+    setIsMutationError(error)
+    setItemTitle('')
+  }
+
+  const handleDelete = async (id: string) => {
+    const { error } = await mutate.delete(id)
 
     setIsMutationError(error)
     setItemTitle('')
@@ -70,9 +77,13 @@ const Home: NextPage = () => {
           </form>
           <ul>
             {todoItems.map((todoItem) => (
-              <li key={todoItem.timestamp}>
+              <li key={todoItem._id}>
                 {todoItem.title}
-                <button type="button" aria-label="Delete note">
+                <button
+                  type="button"
+                  aria-label="Delete note"
+                  onClick={() => handleDelete(todoItem._id)}
+                >
                   <b>X</b>
                 </button>
               </li>

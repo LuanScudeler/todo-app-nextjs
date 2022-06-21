@@ -8,5 +8,26 @@ export const post = (url: string, body: any) => {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
-  }).then((res) => res.json())
+  }).then(handleResponse)
+}
+
+export const remove = (url: string) => {
+  return fetch(url, {
+    method: 'DELETE',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+  }).then(handleResponse)
+}
+
+function handleResponse(response: Response) {
+  if (!response.ok) {
+    throw Error(response.statusText)
+  }
+
+  return response
+    .clone()
+    .json()
+    .catch(() => response.text())
 }

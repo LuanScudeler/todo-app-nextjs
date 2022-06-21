@@ -1,6 +1,7 @@
 import { getErrorMessage } from 'lib/utils/getErrorMessage'
+import { uuid } from 'lib/utils/uuid'
 import useSWR from 'swr'
-import { fetcher, post } from './api'
+import { fetcher, post, remove } from './api'
 
 export const useTodos = () => {
   const {
@@ -9,16 +10,17 @@ export const useTodos = () => {
     mutate: mutateTodos,
   } = useSWR<TodoItem[], Error>('/api/todos', fetcher)
 
-  const mutate = async (todoItem: CreateTodoItem) => {
-    const todoItems = data || []
-    const optimisticData = [
-      ...todoItems,
-      { timestamp: new Date().toISOString(), title: todoItem.title },
-    ]
+  const todoItems = data || []
+
+  const callMutation = async (
+    mutatorCallback: () => Promise<TodoItem[]>,
+    optimisticData: TodoItem[]
+  ) => {
     let error = ''
 
     try {
-      await mutateTodos(createTodo(todoItem, optimisticData), {
+      // TODO: Confirm todo creation so delete button can become available to user
+      const result = await mutateTodos(mutatorCallback, {
         optimisticData,
         rollbackOnError: true,
       })
@@ -32,11 +34,39 @@ export const useTodos = () => {
     }
   }
 
+  const createMutation = async (todoItem: CreateTodoItem) => {
+    const optimisticData = [
+      ...todoItems,
+      {
+        timestamp: new Date().toISOString(),
+        title: todoItem.title,
+        _id: uuid(),
+      },
+    ]
+
+    return callMutation(
+      async () => createTodo(todoItem, optimisticData),
+      optimisticData
+    )
+  }
+
+  const deleteMutation = (id: string) => {
+    const optimisticData = todoItems.filter((todo) => todo._id !== id)
+
+    return callMutation(
+      async () => deleteTodo(id, optimisticData),
+      optimisticData
+    )
+  }
+
   return {
     data,
     isLoading: !error && !data,
     isError: !!error,
-    mutate,
+    mutate: {
+      create: createMutation,
+      delete: deleteMutation,
+    },
   }
 }
 
@@ -45,6 +75,12 @@ export const createTodo = async (
   optimisticData: TodoItem[]
 ) => {
   await post('/api/todo', body)
+
+  return optimisticData
+}
+
+export const deleteTodo = async (id: string, optimisticData: TodoItem[]) => {
+  await remove(`/api/todo/${id}`)
 
   return optimisticData
 }

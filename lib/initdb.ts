@@ -1,7 +1,7 @@
 import { connectMongo } from './mongodb'
 
 export const COLLECTIONS = {
-  TODOS: 'todos2',
+  TODOS: 'todos',
 }
 
 export const initdb = async <T>(collection: string) => {
