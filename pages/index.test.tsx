@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { rest } from 'msw'
 import { todosResponseMock } from 'mocks/handlers'
@@ -6,6 +6,7 @@ import { server } from 'mocks/server'
 import { SWRConfig } from 'swr'
 import * as api from '../pages/api'
 import Home, { phrases } from './index.page'
+import { UserEvent } from '@testing-library/user-event/dist/types/setup'
 
 describe('Home', () => {
   const setupTest = () => {
@@ -68,6 +69,15 @@ describe('Home', () => {
     ).toBeInTheDocument()
   })
 
+  it('creates a new todo successfully', async () => {
+    const { user, debug } = setupTest()
+    const newTodoTitle = 'Todo test'
+
+    submitNewTodo(user, newTodoTitle)
+
+    expect(await screen.findByText(newTodoTitle)).toBeInTheDocument()
+  })
+
   it('renders create todo error message', async () => {
     server.use(
       rest.post('/api/todo', (req, res, { json, status }) => {
@@ -76,17 +86,57 @@ describe('Home', () => {
     )
 
     const { user, debug } = setupTest()
-
-    const todoInputField = screen.getByRole('textbox', {
-      name: phrases.todoTitleLabel,
-    })
-
-    user.pointer({ target: todoInputField, keys: '[MouseLeft]' })
-    user.keyboard('Todo test')
-    user.keyboard('[Enter]')
+    submitNewTodo(user, 'Todo test')
 
     expect(
       await screen.findByText(phrases.createTodoErrorText)
     ).toBeInTheDocument()
   })
+
+  it('deletes a todo successfully', async () => {
+    const { user, debug } = setupTest()
+
+    const { deletedTodoMock } = await deleteTodoFirstInList(user)
+
+    expect(screen.queryByText(deletedTodoMock.title)).not.toBeInTheDocument()
+  })
+
+  it('renders delete todo error message', async () => {
+    server.use(
+      rest.delete('/api/todo/:id', (req, res, { json, status }) => {
+        return res.once(status(500))
+      })
+    )
+
+    const { user, debug } = setupTest()
+    await deleteTodoFirstInList(user)
+
+    expect(
+      await screen.findByText(phrases.deleteTodoErrorText)
+    ).toBeInTheDocument()
+  })
 })
+
+const submitNewTodo = (user: UserEvent, newTodoTitle: string) => {
+  const todoInputField = screen.getByRole('textbox', {
+    name: phrases.todoTitleLabel,
+  })
+
+  user.pointer({ target: todoInputField, keys: '[MouseLeft]' })
+  user.keyboard(`${newTodoTitle}{enter}`)
+}
+
+const deleteTodoFirstInList = async (user: UserEvent) => {
+  const todoIndex = 0
+  const todoMock = todosResponseMock[todoIndex]
+  const todoItems = await screen.findAllByRole('listitem')
+
+  const { getByRole } = within(todoItems[todoIndex])
+  const deleteButton = getByRole('button', {
+    name: phrases.deleteTodoLabel,
+  })
+
+  user.pointer({ target: deleteButton, keys: '[MouseLeft]' })
+
+  return { deletedTodoMock: todoMock }
+}
