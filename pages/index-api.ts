@@ -17,10 +17,10 @@ export const useTodos = () => {
     optimisticData: TodoItem[]
   ) => {
     let error = ''
+    let result
 
     try {
-      // TODO: Confirm todo creation so delete button can become available to user
-      const result = await mutateTodos(mutatorCallback, {
+      result = await mutateTodos(mutatorCallback, {
         optimisticData,
         rollbackOnError: true,
       })
@@ -31,6 +31,7 @@ export const useTodos = () => {
 
     return {
       error,
+      result,
     }
   }
 
