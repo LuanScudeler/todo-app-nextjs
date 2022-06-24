@@ -3,6 +3,8 @@ import { getErrorMessage } from 'lib/utils/getErrorMessage'
 import { ObjectId } from 'mongodb'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
+const TODO_NOT_FOUND_ERROR_MSG = 'Todo not found'
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -21,6 +23,9 @@ export default async function handler(
         const result = await todos.deleteOne({
           _id: new ObjectId(id),
         })
+
+        if (result.deletedCount <= 0)
+          res.status(400).send({ message: TODO_NOT_FOUND_ERROR_MSG })
       } catch (err) {
         console.error(err)
         res.status(500).send({ message: getErrorMessage(err) })
