@@ -3,6 +3,16 @@ import { uuid } from 'lib/utils/uuid'
 import useSWR from 'swr'
 import { fetcher, post, remove } from './api'
 
+type MutationReturn = Promise<{
+  error: string
+  result: TodoItem[] | undefined
+}>
+
+type MutationCall = (
+  mutatorCallback: () => Promise<TodoItem[]>,
+  optimisticData: TodoItem[]
+) => MutationReturn
+
 export const useTodos = () => {
   const {
     data,
@@ -15,7 +25,7 @@ export const useTodos = () => {
   const callMutation = async (
     mutatorCallback: () => Promise<TodoItem[]>,
     optimisticData: TodoItem[]
-  ) => {
+  ): MutationReturn => {
     let error = ''
     let result
 
@@ -35,6 +45,26 @@ export const useTodos = () => {
     }
   }
 
+  const { createMutation, deleteMutation } = initialiseMutateFunctions(
+    todoItems,
+    callMutation
+  )
+
+  return {
+    data,
+    isLoading: !error && !data,
+    isError: !!error,
+    mutate: {
+      create: createMutation,
+      delete: deleteMutation,
+    },
+  }
+}
+
+const initialiseMutateFunctions = (
+  todoItems: TodoItem[],
+  callMutation: MutationCall
+) => {
   const createMutation = async (todoItem: CreateTodoItem) => {
     const optimisticData = [
       ...todoItems,
@@ -61,26 +91,18 @@ export const useTodos = () => {
   }
 
   return {
-    data,
-    isLoading: !error && !data,
-    isError: !!error,
-    mutate: {
-      create: createMutation,
-      delete: deleteMutation,
-    },
+    createMutation,
+    deleteMutation,
   }
 }
 
-export const createTodo = async (
-  body: CreateTodoItem,
-  optimisticData: TodoItem[]
-) => {
+const createTodo = async (body: CreateTodoItem, optimisticData: TodoItem[]) => {
   await post('/api/todo', body)
 
   return optimisticData
 }
 
-export const deleteTodo = async (id: string, optimisticData: TodoItem[]) => {
+const deleteTodo = async (id: string, optimisticData: TodoItem[]) => {
   await remove(`/api/todo/${id}`)
 
   return optimisticData
