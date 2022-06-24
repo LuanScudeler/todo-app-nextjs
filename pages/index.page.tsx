@@ -1,6 +1,6 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Footer } from '../components/Footer'
 import { useTodos } from './index-api'
 
@@ -10,9 +10,11 @@ export const phrases = {
   todoTitleLabel: 'Todo title',
   fetchTodoErrorText: 'Failed to fetch todos',
   createTodoErrorText: 'Failed to create todo',
-  deleteTodoErrorText: 'Failed to delete todo',
+  deleteTodoErrorText: 'Failed to delete todo. Please try again.',
   deleteTodoLabel: 'Delete note',
 }
+
+const CONTAINERS_WIDTH = 'w-11/12 sm:w-10/12 lg:w-6/12'
 
 const Home: NextPage = () => {
   const [itemTitle, setItemTitle] = useState<string>('')
@@ -30,14 +32,18 @@ const Home: NextPage = () => {
 
     setItemTitle('')
 
-    const { error, result } = await mutate.create({ title: itemTitle })
-    error && setMutationError(phrases.createTodoErrorText)
+    const { error } = await mutate.create({ title: itemTitle })
+    error
+      ? setMutationError(phrases.createTodoErrorText)
+      : setMutationError(undefined)
   }
 
   const handleDelete = async (id: string) => {
     const { error } = await mutate.delete(id)
 
-    error && setMutationError(phrases.deleteTodoErrorText)
+    error
+      ? setMutationError(phrases.deleteTodoErrorText)
+      : setMutationError(undefined)
   }
 
   return (
@@ -48,59 +54,58 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="min-h-screen py-16 flex flex-col items-center">
+      <main className="min-h-screen py-16 flex flex-col items-center :">
         <h1 className="mb-8 text-3xl sm:text-5xl lg:text-6xl ">
           {phrases.titleText}
         </h1>
-        <div>
-          <div className="flex flex-col justify-center">
-            <span className="text-red-600">
-              {isFetchError && phrases.fetchTodoErrorText}
-              {mutationError}
-            </span>
-            <span className="text-neutral-900">
-              {isLoading && phrases.loadingText}
-            </span>
-            <form onSubmit={handleSubmit}>
-              <label
-                htmlFor="todo-title"
-                className="font-semibold leading-loose"
-              >
-                {phrases.todoTitleLabel}
-              </label>
-              <input
-                className="h-8 border px-4 block mb-4"
-                type="text"
-                id="todo-title"
-                name="todo_title"
-                placeholder="type a new todo"
-                value={itemTitle}
-                onChange={(e) => setItemTitle(e.target.value)}
-                required
-              />
-            </form>
-          </div>
-          {todoItems.length > 0 && (
-            <ul className="shadow-xl border border-gray-200">
-              {todoItems.map((todoItem) => (
-                <li
-                  key={todoItem._id}
-                  className="flex bg-white p-4 border-b border-gray-200"
-                >
-                  <span className="grow break-all">{todoItem.title}</span>
-                  <button
-                    className="ml-4"
-                    type="button"
-                    aria-label={phrases.deleteTodoLabel}
-                    onClick={() => handleDelete(todoItem._id)}
-                  >
-                    <b>X</b>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
+        <div
+          className={`flex flex-col justify-center items-center ${CONTAINERS_WIDTH}`}
+        >
+          <span className="text-red-600">
+            {isFetchError && phrases.fetchTodoErrorText}
+            {mutationError}
+          </span>
+          <span className="text-neutral-900">
+            {isLoading && phrases.loadingText}
+          </span>
+          <form onSubmit={handleSubmit} className="w-full">
+            <label htmlFor="todo-title" className="font-semibold leading-loose">
+              {phrases.todoTitleLabel}
+            </label>
+            <input
+              className="h-8 w-full border px-4 block mb-4"
+              type="text"
+              id="todo-title"
+              name="todo_title"
+              placeholder="type a new todo"
+              value={itemTitle}
+              onChange={(e) => setItemTitle(e.target.value)}
+              required
+            />
+          </form>
         </div>
+        {todoItems.length > 0 && (
+          <ul
+            className={`shadow-xl border border-gray-200 ${CONTAINERS_WIDTH}`}
+          >
+            {todoItems.map((todoItem) => (
+              <li
+                key={todoItem._id}
+                className="flex bg-white p-4 border-b border-gray-200"
+              >
+                <span className="grow break-all">{todoItem.title}</span>
+                <button
+                  className="ml-4"
+                  type="button"
+                  aria-label={phrases.deleteTodoLabel}
+                  onClick={() => handleDelete(todoItem._id)}
+                >
+                  <b>X</b>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </main>
       <Footer />
     </div>
