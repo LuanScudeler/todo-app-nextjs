@@ -70,7 +70,7 @@ describe('Home', () => {
   })
 
   it('creates a new todo successfully', async () => {
-    const { user, debug } = setupTest()
+    const { user } = setupTest()
     const newTodoTitle = 'Todo test'
 
     submitNewTodo(user, newTodoTitle)
@@ -85,7 +85,7 @@ describe('Home', () => {
       })
     )
 
-    const { user, debug } = setupTest()
+    const { user } = setupTest()
     submitNewTodo(user, 'Todo test')
 
     expect(
@@ -94,7 +94,7 @@ describe('Home', () => {
   })
 
   it('deletes a todo successfully', async () => {
-    const { user, debug } = setupTest()
+    const { user } = setupTest()
 
     const { deletedTodoMock } = await deleteTodoFirstInList(user)
 
@@ -108,7 +108,7 @@ describe('Home', () => {
       })
     )
 
-    const { user, debug } = setupTest()
+    const { user } = setupTest()
     await deleteTodoFirstInList(user)
 
     expect(
