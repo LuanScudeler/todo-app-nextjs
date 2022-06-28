@@ -141,11 +141,11 @@ const Home: NextPage = () => {
                   <>
                     <form
                       onSubmit={handleEditSubmit}
+                      className="grow min-w-0 "
                       id="edit-todo-form"
-                      className="w-full"
                     >
                       <input
-                        className="grow outline-none"
+                        className="outline-none"
                         id="todo-edit-title"
                         name="todo_edit_title"
                         value={todoEditingTitle || todoItem.title}
