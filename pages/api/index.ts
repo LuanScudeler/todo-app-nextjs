@@ -1,12 +1,22 @@
 export const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
+const headers = {
+  Accept: 'application/json',
+  'Content-Type': 'application/json',
+}
+
 export const post = (url: string, body: any) => {
   return fetch(url, {
     method: 'POST',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
+    headers,
+    body: JSON.stringify(body),
+  }).then(handleResponse)
+}
+
+export const put = (url: string, body: any) => {
+  return fetch(url, {
+    method: 'PUT',
+    headers,
     body: JSON.stringify(body),
   }).then(handleResponse)
 }
@@ -14,14 +24,11 @@ export const post = (url: string, body: any) => {
 export const remove = (url: string) => {
   return fetch(url, {
     method: 'DELETE',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
+    headers,
   }).then(handleResponse)
 }
 
-function handleResponse(response: Response) {
+const handleResponse = (response: Response) => {
   if (!response.ok) {
     throw Error(response.statusText)
   }

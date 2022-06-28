@@ -1,6 +1,7 @@
+import { Close, Pencil, Save } from 'lib/icons'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Footer } from '../components/Footer'
 import { useTodos } from './index-api'
 
@@ -10,15 +11,21 @@ export const phrases = {
   todoTitleLabel: 'Todo title',
   fetchTodoErrorText: 'Failed to fetch todos',
   createTodoErrorText: 'Failed to create todo',
+  updateTodoErrorText: 'Failed to update todo',
   deleteTodoErrorText: 'Failed to delete todo. Please try again.',
-  deleteTodoLabel: 'Delete note',
+  deleteTodoLabel: 'Delete todo',
+  editTodoLabel: 'Edit todo',
+  saveEditTodoLabel: 'Save edit',
+  cancelEditTodoLabel: 'Cancel edit',
 }
 
 const CONTAINERS_WIDTH = 'w-11/12 sm:w-10/12 lg:w-6/12'
 
 const Home: NextPage = () => {
-  const [itemTitle, setItemTitle] = useState<string>('')
+  const [todoTitle, setTodoTitle] = useState<string>('')
+  const [todoEditingTitle, setTodoEditingTitle] = useState<string>('')
   const [mutationError, setMutationError] = useState<string>()
+  const [todoEditingId, setTodoEditingId] = useState<string>()
 
   const {
     data: todoItems = [],
@@ -30,11 +37,32 @@ const Home: NextPage = () => {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault()
 
-    setItemTitle('')
+    setTodoTitle('')
 
-    const { error } = await mutate.create({ title: itemTitle })
+    const { error } = await mutate.create({ title: todoTitle })
     error
       ? setMutationError(phrases.createTodoErrorText)
+      : setMutationError(undefined)
+  }
+
+  const handleEditSubmit = async (e: React.SyntheticEvent) => {
+    e.preventDefault()
+
+    if (!todoEditingTitle) {
+      setTodoEditingId('')
+      return
+    }
+
+    setTodoEditingId('')
+    setTodoEditingTitle('')
+
+    const { error } = await mutate.update({
+      title: todoEditingTitle,
+      _id: todoEditingId!,
+    })
+
+    error
+      ? setMutationError(phrases.updateTodoErrorText)
       : setMutationError(undefined)
   }
 
@@ -45,6 +73,20 @@ const Home: NextPage = () => {
       ? setMutationError(phrases.deleteTodoErrorText)
       : setMutationError(undefined)
   }
+
+  const colors = useMemo(() => {
+    if (todoEditingId) {
+      return {
+        title: 'text-gray-300',
+        svg: 'fill-gray-300',
+      }
+    }
+
+    return {
+      title: 'text-inherit',
+      svg: 'fill-inherit',
+    }
+  }, [todoEditingId])
 
   return (
     <div className="px-8">
@@ -78,8 +120,8 @@ const Home: NextPage = () => {
               id="todo-title"
               name="todo_title"
               placeholder="type a new todo"
-              value={itemTitle}
-              onChange={(e) => setItemTitle(e.target.value)}
+              value={todoTitle}
+              onChange={(e) => setTodoTitle(e.target.value)}
               required
             />
           </form>
@@ -91,17 +133,77 @@ const Home: NextPage = () => {
             {todoItems.map((todoItem) => (
               <li
                 key={todoItem._id}
-                className="flex bg-white p-4 border-b border-gray-200"
+                className={`flex bg-white p-4 border-b border-gray-200 ${
+                  todoItem._id === todoEditingId ? 'highlight-shadown' : ''
+                }`}
               >
-                <span className="grow break-all">{todoItem.title}</span>
-                <button
-                  className="ml-4"
-                  type="button"
-                  aria-label={phrases.deleteTodoLabel}
-                  onClick={() => handleDelete(todoItem._id)}
-                >
-                  <b>X</b>
-                </button>
+                {todoItem._id === todoEditingId ? (
+                  <>
+                    <form
+                      onSubmit={handleEditSubmit}
+                      id="edit-todo-form"
+                      className="w-full"
+                    >
+                      <input
+                        className="grow outline-none"
+                        id="todo-edit-title"
+                        name="todo_edit_title"
+                        value={todoEditingTitle || todoItem.title}
+                        onChange={(e) => setTodoEditingTitle(e.target.value)}
+                        // eslint-disable-next-line jsx-a11y/no-autofocus
+                        autoFocus
+                      />
+                    </form>
+                    <button
+                      className="ml-4 mr-1"
+                      form="edit-todo-form"
+                      type="button"
+                      title={phrases.saveEditTodoLabel}
+                      aria-label={phrases.deleteTodoLabel}
+                      onClick={handleEditSubmit}
+                    >
+                      <Save size={17} />
+                    </button>
+                    <button
+                      className="ml-4"
+                      type="button"
+                      title={phrases.cancelEditTodoLabel}
+                      aria-label={phrases.deleteTodoLabel}
+                      onClick={() => {
+                        setTodoEditingId('')
+                        setTodoEditingTitle('')
+                      }}
+                    >
+                      <Close size={16} />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className={`${colors.title} grow break-all`}>
+                      {todoItem.title}
+                    </span>
+                    <button
+                      className={`ml-4 mr-1`}
+                      type="button"
+                      title={phrases.editTodoLabel}
+                      aria-label={phrases.editTodoLabel}
+                      onClick={() => setTodoEditingId(todoItem._id)}
+                      disabled={!!todoEditingId}
+                    >
+                      <Pencil className={`${colors.svg}`} size={17} />
+                    </button>
+                    <button
+                      className="ml-4 fill"
+                      type="button"
+                      title={phrases.deleteTodoLabel}
+                      aria-label={phrases.deleteTodoLabel}
+                      onClick={() => handleDelete(todoItem._id)}
+                      disabled={!!todoEditingId}
+                    >
+                      <Close className={`${colors.svg}`} size={16} />
+                    </button>
+                  </>
+                )}
               </li>
             ))}
           </ul>

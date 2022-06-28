@@ -10,20 +10,19 @@ export default async function handler(
 
   switch (method) {
     case 'POST':
-      let result
       try {
         const todos = await initdb<InsertTodoItem>(COLLECTIONS.TODOS)
 
-        result = await todos.insertOne({
+        const result = await todos.insertOne({
           title: body.title,
           timestamp: new Date(),
         })
+
+        res.status(200).json(result)
       } catch (err) {
         console.error(err)
         res.status(500).send({ message: getErrorMessage(err) })
       }
-
-      res.status(200).json(result)
 
       break
     default:

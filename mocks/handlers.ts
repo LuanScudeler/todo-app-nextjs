@@ -10,6 +10,9 @@ export const handlers = [
   rest.delete('/api/todo/:id', (req, res, ctx) => {
     return res(ctx.status(200))
   }),
+  rest.put('/api/todo/:id', (req, res, ctx) => {
+    return res(ctx.status(200))
+  }),
 ]
 
 export const todosResponseMock = [

@@ -1,5 +1,4 @@
 import { MongoClient } from 'mongodb'
-import { type } from 'os'
 import { getErrorMessage } from './utils/getErrorMessage'
 
 const uri = process.env.MONGODB_URI
