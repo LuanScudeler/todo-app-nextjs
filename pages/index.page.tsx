@@ -23,7 +23,7 @@ const CONTAINERS_WIDTH = 'w-11/12 sm:w-10/12 lg:w-6/12'
 
 const Home: NextPage = () => {
   const [todoTitle, setTodoTitle] = useState<string>('')
-  const [todoEditingTitle, setTodoEditingTitle] = useState<string>('')
+  const [todoEditingTitle, setTodoEditingTitle] = useState<string | null>()
   const [mutationError, setMutationError] = useState<string>()
   const [todoEditingId, setTodoEditingId] = useState<string>()
 
@@ -54,7 +54,7 @@ const Home: NextPage = () => {
     }
 
     setTodoEditingId('')
-    setTodoEditingTitle('')
+    setTodoEditingTitle(null)
 
     const { error } = await mutate.update({
       title: todoEditingTitle,
@@ -74,17 +74,17 @@ const Home: NextPage = () => {
       : setMutationError(undefined)
   }
 
-  const colors = useMemo(() => {
+  const dynamicStyles = useMemo(() => {
     if (todoEditingId) {
       return {
-        title: 'text-gray-300',
-        svg: 'fill-gray-300',
+        titleColor: 'text-gray-300',
+        svgFill: 'fill-gray-300',
       }
     }
 
     return {
-      title: 'text-inherit',
-      svg: 'fill-inherit',
+      titleColor: 'text-inherit',
+      svgFill: 'fill-inherit',
     }
   }, [todoEditingId])
 
@@ -115,7 +115,7 @@ const Home: NextPage = () => {
               {phrases.todoTitleLabel}
             </label>
             <input
-              className="h-8 w-full border px-4 block mb-4"
+              className="h-12 w-full border px-4 block mb-4"
               type="text"
               id="todo-title"
               name="todo_title"
@@ -134,36 +134,37 @@ const Home: NextPage = () => {
               <li
                 key={todoItem._id}
                 className={`flex bg-white p-4 border-b border-gray-200 ${
-                  todoItem._id === todoEditingId ? 'highlight-shadown' : ''
+                  todoItem._id === todoEditingId ? 'highlight-shadow' : ''
                 }`}
               >
                 {todoItem._id === todoEditingId ? (
                   <>
                     <form
                       onSubmit={handleEditSubmit}
-                      className="grow min-w-0 "
+                      className="flex grow min-w-0 "
                       id="edit-todo-form"
                     >
                       <input
-                        className="outline-none"
+                        className="grow outline-none"
                         id="todo-edit-title"
                         name="todo_edit_title"
-                        value={todoEditingTitle || todoItem.title}
+                        value={todoEditingTitle ?? todoItem.title}
                         onChange={(e) => setTodoEditingTitle(e.target.value)}
+                        required
                         // eslint-disable-next-line jsx-a11y/no-autofocus
                         autoFocus
                       />
+                      <button
+                        className="ml-4 mr-1"
+                        form="edit-todo-form"
+                        type="submit"
+                        title={phrases.saveEditTodoLabel}
+                        aria-label={phrases.deleteTodoLabel}
+                      >
+                        <Save size={17} />
+                      </button>
                     </form>
-                    <button
-                      className="ml-4 mr-1"
-                      form="edit-todo-form"
-                      type="button"
-                      title={phrases.saveEditTodoLabel}
-                      aria-label={phrases.deleteTodoLabel}
-                      onClick={handleEditSubmit}
-                    >
-                      <Save size={17} />
-                    </button>
+
                     <button
                       className="ml-4"
                       type="button"
@@ -171,7 +172,7 @@ const Home: NextPage = () => {
                       aria-label={phrases.deleteTodoLabel}
                       onClick={() => {
                         setTodoEditingId('')
-                        setTodoEditingTitle('')
+                        setTodoEditingTitle(null)
                       }}
                     >
                       <Close size={16} />
@@ -179,7 +180,9 @@ const Home: NextPage = () => {
                   </>
                 ) : (
                   <>
-                    <span className={`${colors.title} grow break-all`}>
+                    <span
+                      className={`${dynamicStyles.titleColor} grow break-all`}
+                    >
                       {todoItem.title}
                     </span>
                     <button
@@ -190,7 +193,10 @@ const Home: NextPage = () => {
                       onClick={() => setTodoEditingId(todoItem._id)}
                       disabled={!!todoEditingId}
                     >
-                      <Pencil className={`${colors.svg}`} size={17} />
+                      <Pencil
+                        className={`${dynamicStyles.svgFill}`}
+                        size={17}
+                      />
                     </button>
                     <button
                       className="ml-4 fill"
@@ -200,7 +206,7 @@ const Home: NextPage = () => {
                       onClick={() => handleDelete(todoItem._id)}
                       disabled={!!todoEditingId}
                     >
-                      <Close className={`${colors.svg}`} size={16} />
+                      <Close className={`${dynamicStyles.svgFill}`} size={16} />
                     </button>
                   </>
                 )}
