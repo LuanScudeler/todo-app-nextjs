@@ -1,4 +1,4 @@
-import { Close, Pencil, Save } from 'lib/icons'
+import { Back, Close, Pencil, Save } from 'lib/icons'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useMemo, useState } from 'react'
@@ -175,7 +175,7 @@ const Home: NextPage = () => {
                         setTodoEditingTitle(null)
                       }}
                     >
-                      <Close size={16} />
+                      <Back size={16} />
                     </button>
                   </>
                 ) : (
