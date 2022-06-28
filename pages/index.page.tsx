@@ -1,4 +1,5 @@
 import { Back, Close, Pencil, Save } from 'lib/icons'
+import { uuid } from 'lib/utils/uuid'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useMemo, useState } from 'react'
@@ -39,7 +40,7 @@ const Home: NextPage = () => {
 
     setTodoTitle('')
 
-    const { error } = await mutate.create({ title: todoTitle })
+    const { error } = await mutate.create({ title: todoTitle, _id: uuid() })
     error
       ? setMutationError(phrases.createTodoErrorText)
       : setMutationError(undefined)

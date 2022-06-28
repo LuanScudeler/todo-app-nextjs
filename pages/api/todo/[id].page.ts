@@ -15,12 +15,10 @@ export default async function handler(
   switch (method) {
     case 'PUT':
       try {
-        const todos = await initdb<InsertTodoItem>(COLLECTIONS.TODOS)
+        const todos = await initdb(COLLECTIONS.TODOS)
 
-        const query = { _id: new ObjectId(id) }
+        const query = { _id: id }
         const result = await todos.updateOne(query, { $set: body })
-
-        console.log(result)
 
         if (result.modifiedCount <= 0) {
           res.status(400).send({ message: TODO_NOT_FOUND_ERROR_MSG })
@@ -36,10 +34,10 @@ export default async function handler(
       break
     case 'DELETE':
       try {
-        const todos = await initdb<InsertTodoItem>(COLLECTIONS.TODOS)
+        const todos = await initdb(COLLECTIONS.TODOS)
 
         const result = await todos.deleteOne({
-          _id: new ObjectId(id),
+          _id: id,
         })
 
         if (result.deletedCount <= 0) {

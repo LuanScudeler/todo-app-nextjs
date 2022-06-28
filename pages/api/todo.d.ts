@@ -9,8 +9,7 @@ type MutationReturn = Promise<{
   result: TodoItem[] | undefined
 }>
 
-type CreateTodoItem = Omit<TodoItem, 'timestamp' | '_id'>
+type CreateTodoItem = Omit<TodoItem, 'timestamp'>
+type InsertTodoItem = CreateTodoItem & { timestamp: Date }
 
 type UpdateTodoItem = Omit<TodoItem, 'timestamp'>
-
-type InsertTodoItem = CreateTodoItem & { timestamp: Date }

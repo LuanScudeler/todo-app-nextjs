@@ -14,6 +14,7 @@ export default async function handler(
         const todos = await initdb<InsertTodoItem>(COLLECTIONS.TODOS)
 
         const result = await todos.insertOne({
+          _id: body._id,
           title: body.title,
           timestamp: new Date(),
         })

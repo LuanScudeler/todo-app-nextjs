@@ -16,7 +16,7 @@ export const initMutateFunctions = (
       {
         timestamp: new Date().toISOString(),
         title: todoItem.title,
-        _id: uuid(),
+        _id: todoItem._id,
       },
     ]
 
