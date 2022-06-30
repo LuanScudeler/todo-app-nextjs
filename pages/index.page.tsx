@@ -165,7 +165,6 @@ const Home: NextPage = () => {
                         <Save size={17} />
                       </button>
                     </form>
-
                     <button
                       className="ml-4"
                       type="button"
@@ -176,7 +175,7 @@ const Home: NextPage = () => {
                         setTodoEditingTitle(null)
                       }}
                     >
-                      <Back size={16} />
+                      <Back size={19} />
                     </button>
                   </>
                 ) : (
