@@ -10,6 +10,7 @@ type MutationReturn = Promise<{
 }>
 
 type CreateTodoItem = Omit<TodoItem, 'timestamp'>
+
 type InsertTodoItem = CreateTodoItem & { timestamp: Date }
 
 type UpdateTodoItem = Omit<TodoItem, 'timestamp'>

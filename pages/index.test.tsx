@@ -1,4 +1,11 @@
-import { render, screen, within } from '@testing-library/react'
+/* eslint-disable testing-library/prefer-screen-queries */
+import {
+  BoundFunctions,
+  Queries,
+  render,
+  screen,
+  within,
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { rest } from 'msw'
 import { todosResponseMock } from 'mocks/handlers'
@@ -8,7 +15,7 @@ import * as api from '../pages/api'
 import Home, { phrases } from './index.page'
 import { UserEvent } from '@testing-library/user-event/dist/types/setup'
 
-describe('Home', () => {
+describe('Todo app', () => {
   const setupTest = () => {
     return {
       user: userEvent.setup(),
@@ -20,100 +27,142 @@ describe('Home', () => {
     }
   }
 
-  it('renders home page', async () => {
-    setupTest()
+  describe('fetch todos', () => {
+    it('renders home page', async () => {
+      setupTest()
 
-    const heading = screen.getByRole('heading', {
-      name: phrases.titleText,
-    })
-    const todoInputField = screen.getByRole('textbox', {
-      name: phrases.todoTitleLabel,
-    })
-
-    expect(heading).toBeInTheDocument()
-    expect(todoInputField).toBeInTheDocument()
-  })
-
-  it('renders list of todos', async () => {
-    setupTest()
-
-    expect(await screen.findByRole('list')).toBeInTheDocument()
-    expect(await screen.findAllByRole('listitem')).toHaveLength(
-      todosResponseMock.length
-    )
-  })
-
-  it('renders loading indicator', async () => {
-    jest.spyOn(api, 'fetcher').mockImplementationOnce(() => {
-      return new Promise((resolve) => {
-        setTimeout(() => resolve(''), 9999)
+      const heading = screen.getByRole('heading', {
+        name: phrases.titleText,
       })
+      const todoInputField = screen.getByRole('textbox', {
+        name: phrases.todoTitleLabel,
+      })
+
+      expect(heading).toBeInTheDocument()
+      expect(todoInputField).toBeInTheDocument()
     })
 
-    setupTest()
+    it('renders list of todos', async () => {
+      setupTest()
 
-    expect(await screen.findByText(phrases.loadingText)).toBeInTheDocument()
-  })
+      expect(await screen.findByRole('list')).toBeInTheDocument()
+      expect(await screen.findAllByRole('listitem')).toHaveLength(
+        todosResponseMock.length
+      )
+    })
 
-  it('renders fetch error message', async () => {
-    server.use(
-      rest.get('/api/todos', (req, res, { json, status }) => {
-        return res.once(status(500))
+    it('renders loading indicator', async () => {
+      jest.spyOn(api, 'fetcher').mockImplementationOnce(() => {
+        return new Promise((resolve) => {
+          setTimeout(() => resolve(''), 9999)
+        })
       })
-    )
 
-    setupTest()
+      setupTest()
 
-    expect(
-      await screen.findByText(phrases.fetchTodoErrorText)
-    ).toBeInTheDocument()
+      expect(await screen.findByText(phrases.loadingText)).toBeInTheDocument()
+    })
+
+    it('renders fetch error message', async () => {
+      server.use(
+        rest.get('/api/todos', (req, res, { json, status }) => {
+          return res.once(status(500))
+        })
+      )
+
+      setupTest()
+
+      expect(
+        await screen.findByText(phrases.fetchTodoErrorText)
+      ).toBeInTheDocument()
+    })
   })
 
-  it('creates a new todo successfully', async () => {
-    const { user } = setupTest()
-    const newTodoTitle = 'Todo test'
+  describe('create todos', () => {
+    it('creates a new todo successfully', async () => {
+      const { user } = setupTest()
+      const newTodoTitle = 'Todo test'
 
-    submitNewTodo(user, newTodoTitle)
+      submitNewTodo(user, newTodoTitle)
 
-    expect(await screen.findByText(newTodoTitle)).toBeInTheDocument()
+      expect(await screen.findByText(newTodoTitle)).toBeInTheDocument()
+    })
+
+    it('renders create todo error message', async () => {
+      server.use(
+        rest.post('/api/todo', (req, res, { json, status }) => {
+          return res.once(status(500))
+        })
+      )
+
+      const { user } = setupTest()
+      submitNewTodo(user, 'Todo test')
+
+      expect(
+        await screen.findByText(phrases.createTodoErrorText)
+      ).toBeInTheDocument()
+    })
   })
 
-  it('renders create todo error message', async () => {
-    server.use(
-      rest.post('/api/todo', (req, res, { json, status }) => {
-        return res.once(status(500))
-      })
-    )
+  describe('delete todos', () => {
+    it('deletes a todo successfully', async () => {
+      const { user } = setupTest()
 
-    const { user } = setupTest()
-    submitNewTodo(user, 'Todo test')
+      const { deletedTodoMock } = await deleteTodoFirstInList(user)
 
-    expect(
-      await screen.findByText(phrases.createTodoErrorText)
-    ).toBeInTheDocument()
+      expect(screen.queryByText(deletedTodoMock.title)).not.toBeInTheDocument()
+    })
+
+    it('renders delete todo error message', async () => {
+      server.use(
+        rest.delete('/api/todo/:id', (req, res, { json, status }) => {
+          return res.once(status(500))
+        })
+      )
+
+      const { user } = setupTest()
+      await deleteTodoFirstInList(user)
+
+      expect(
+        await screen.findByText(phrases.deleteTodoErrorText)
+      ).toBeInTheDocument()
+    })
   })
 
-  it('deletes a todo successfully', async () => {
-    const { user } = setupTest()
+  describe('edit todos', () => {
+    it('displays edit mode', async () => {
+      const { user } = setupTest()
+      const { renderResult: todoElement } = await getTodoElement(0)
 
-    const { deletedTodoMock } = await deleteTodoFirstInList(user)
+      enterEditMode(user, todoElement)
 
-    expect(screen.queryByText(deletedTodoMock.title)).not.toBeInTheDocument()
-  })
+      expect(
+        screen.getByRole('button', { name: phrases.saveEditTodoLabel })
+      ).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: phrases.cancelEditTodoLabel })
+      ).toBeInTheDocument()
+      expect(todoElement.getByRole('textbox')).toBeInTheDocument()
+    })
 
-  it('renders delete todo error message', async () => {
-    server.use(
-      rest.delete('/api/todo/:id', (req, res, { json, status }) => {
-        return res.once(status(500))
-      })
-    )
+    it('disables actions on todos that are not on edit mode', async () => {
+      const { user } = setupTest()
+      const { renderResult: todoElement } = await getTodoElement(0)
 
-    const { user } = setupTest()
-    await deleteTodoFirstInList(user)
+      enterEditMode(user, todoElement)
 
-    expect(
-      await screen.findByText(phrases.deleteTodoErrorText)
-    ).toBeInTheDocument()
+      const { renderResult: noEditModeTodoElement } = await getTodoElement(1)
+      expect(
+        noEditModeTodoElement.getByRole('button', {
+          name: phrases.editTodoLabel,
+        })
+      ).toBeDisabled()
+      expect(
+        noEditModeTodoElement.getByRole('button', {
+          name: phrases.deleteTodoLabel,
+        })
+      ).toBeDisabled()
+    })
   })
 })
 
@@ -127,16 +176,32 @@ const submitNewTodo = (user: UserEvent, newTodoTitle: string) => {
 }
 
 const deleteTodoFirstInList = async (user: UserEvent) => {
-  const todoIndex = 0
-  const todoMock = todosResponseMock[todoIndex]
-  const todoItems = await screen.findAllByRole('listitem')
-
-  const { getByRole } = within(todoItems[todoIndex])
-  const deleteButton = getByRole('button', {
+  const { renderResult, todoData } = await getTodoElement(0)
+  const deleteButton = renderResult.getByRole('button', {
     name: phrases.deleteTodoLabel,
   })
 
   user.pointer({ target: deleteButton, keys: '[MouseLeft]' })
 
-  return { deletedTodoMock: todoMock }
+  return { deletedTodoMock: todoData }
+}
+
+const enterEditMode = (
+  user: UserEvent,
+  todoElement: BoundFunctions<Queries>
+) => {
+  const editButton = todoElement.getByRole('button', {
+    name: phrases.editTodoLabel,
+  })
+
+  user.pointer({ target: editButton as Element, keys: '[MouseLeft]' })
+}
+
+const getTodoElement = async (todoIndex: number) => {
+  const todoItems = await screen.findAllByRole('listitem')
+
+  return {
+    renderResult: within(todoItems[todoIndex]),
+    todoData: todosResponseMock[todoIndex],
+  }
 }

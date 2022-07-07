@@ -160,7 +160,7 @@ const Home: NextPage = () => {
                         form="edit-todo-form"
                         type="submit"
                         title={phrases.saveEditTodoLabel}
-                        aria-label={phrases.deleteTodoLabel}
+                        aria-label={phrases.saveEditTodoLabel}
                       >
                         <Save size={17} />
                       </button>
@@ -169,7 +169,7 @@ const Home: NextPage = () => {
                       className="ml-4"
                       type="button"
                       title={phrases.cancelEditTodoLabel}
-                      aria-label={phrases.deleteTodoLabel}
+                      aria-label={phrases.cancelEditTodoLabel}
                       onClick={() => {
                         setTodoEditingId('')
                         setTodoEditingTitle(null)
