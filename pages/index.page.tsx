@@ -1,32 +1,22 @@
+import { AppContext } from 'lib/appContext'
 import { Back, Close, Pencil, Save } from 'lib/icons'
 import { uuid } from 'lib/utils/uuid'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { useMemo, useState } from 'react'
+import { Dispatch, SetStateAction, useContext, useMemo, useState } from 'react'
 import { Footer } from '../components/Footer'
+import { CreateForm } from './components/CreateForm'
+import { EditForm } from './components/EditForm'
 import { useTodos } from './index-api'
-
-export const phrases = {
-  loadingText: 'Loading...',
-  titleText: 'Todo Next App',
-  todoTitleLabel: 'Todo title',
-  fetchTodoErrorText: 'Failed to fetch todos',
-  createTodoErrorText: 'Failed to create todo',
-  updateTodoErrorText: 'Failed to update todo',
-  deleteTodoErrorText: 'Failed to delete todo. Please try again.',
-  deleteTodoLabel: 'Delete todo',
-  editTodoLabel: 'Edit todo',
-  saveEditTodoLabel: 'Save edit',
-  cancelEditTodoLabel: 'Cancel edit',
-}
-
-const CONTAINERS_WIDTH = 'w-11/12 sm:w-10/12 lg:w-6/12'
+import { CONTAINERS_WIDTH } from './index-const'
 
 const Home: NextPage = () => {
   const [todoTitle, setTodoTitle] = useState<string>('')
   const [todoEditingTitle, setTodoEditingTitle] = useState<string | null>()
   const [mutationError, setMutationError] = useState<string>()
   const [todoEditingId, setTodoEditingId] = useState<string>()
+
+  const { phrases } = useContext(AppContext)
 
   const {
     data: todoItems = [],
@@ -101,32 +91,18 @@ const Home: NextPage = () => {
         <h1 className="mb-8 text-3xl sm:text-5xl lg:text-6xl ">
           {phrases.titleText}
         </h1>
-        <div
-          className={`flex flex-col justify-center items-center ${CONTAINERS_WIDTH}`}
-        >
-          <span className="text-red-600">
-            {isFetchError && phrases.fetchTodoErrorText}
-            {mutationError}
-          </span>
-          <span className="text-neutral-900">
-            {isLoading && phrases.loadingText}
-          </span>
-          <form onSubmit={handleSubmit} className="w-full">
-            <label htmlFor="todo-title" className="font-semibold leading-loose">
-              {phrases.todoTitleLabel}
-            </label>
-            <input
-              className="h-12 w-full border px-4 block mb-4"
-              type="text"
-              id="todo-title"
-              name="todo_title"
-              placeholder="type a new todo"
-              value={todoTitle}
-              onChange={(e) => setTodoTitle(e.target.value)}
-              required
-            />
-          </form>
-        </div>
+        <span className="text-red-600">
+          {isFetchError && phrases.fetchTodoErrorText}
+          {mutationError}
+        </span>
+        <span className="text-neutral-900">
+          {isLoading && phrases.loadingText}
+        </span>
+        <CreateForm
+          handleSubmit={handleSubmit}
+          todoTitle={todoTitle}
+          setTodoTitle={setTodoTitle}
+        />
         {todoItems.length > 0 && (
           <ul
             className={`shadow-xl border border-gray-200 ${CONTAINERS_WIDTH}`}
@@ -139,45 +115,13 @@ const Home: NextPage = () => {
                 }`}
               >
                 {todoItem._id === todoEditingId ? (
-                  <>
-                    <form
-                      onSubmit={handleEditSubmit}
-                      className="flex grow min-w-0"
-                      id="edit-todo-form"
-                    >
-                      <input
-                        className="grow outline-none min-w-0"
-                        id="todo-edit-title"
-                        name="todo_edit_title"
-                        value={todoEditingTitle ?? todoItem.title}
-                        onChange={(e) => setTodoEditingTitle(e.target.value)}
-                        required
-                        // eslint-disable-next-line jsx-a11y/no-autofocus
-                        autoFocus
-                      />
-                      <button
-                        className="ml-4 mr-1"
-                        form="edit-todo-form"
-                        type="submit"
-                        title={phrases.saveEditTodoLabel}
-                        aria-label={phrases.saveEditTodoLabel}
-                      >
-                        <Save size={17} />
-                      </button>
-                    </form>
-                    <button
-                      className="ml-4"
-                      type="button"
-                      title={phrases.cancelEditTodoLabel}
-                      aria-label={phrases.cancelEditTodoLabel}
-                      onClick={() => {
-                        setTodoEditingId('')
-                        setTodoEditingTitle(null)
-                      }}
-                    >
-                      <Back size={19} />
-                    </button>
-                  </>
+                  <EditForm
+                    handleEditSubmit={handleEditSubmit}
+                    todoEditingTitle={todoEditingTitle}
+                    setTodoEditingTitle={setTodoEditingTitle}
+                    todoItem={todoItem}
+                    setTodoEditingId={setTodoEditingId}
+                  />
                 ) : (
                   <>
                     <span

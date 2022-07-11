@@ -26,7 +26,6 @@ export const useTodos = () => {
       })
     } catch (err) {
       error = getErrorMessage(err)
-      console.error(error)
     }
 
     return {
