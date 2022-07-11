@@ -12,17 +12,21 @@ import { todosResponseMock } from 'mocks/handlers'
 import { server } from 'mocks/server'
 import { SWRConfig } from 'swr'
 import * as api from '../pages/api'
-import Home, { phrases } from './index.page'
+import Home from './index.page'
 import { UserEvent } from '@testing-library/user-event/dist/types/setup'
+import { phrases } from 'lib/phrases'
+import { AppContext } from 'lib/appContext'
 
 describe('Todo app', () => {
   const setupTest = () => {
     return {
       user: userEvent.setup(),
       ...render(
-        <SWRConfig value={{ provider: () => new Map() }}>
-          <Home />
-        </SWRConfig>
+        <AppContext.Provider value={{ phrases: phrases }}>
+          <SWRConfig value={{ provider: () => new Map() }}>
+            <Home />
+          </SWRConfig>
+        </AppContext.Provider>
       ),
     }
   }
