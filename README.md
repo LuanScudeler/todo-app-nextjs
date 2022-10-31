@@ -1,8 +1,8 @@
 # Todo App
 
-This project features CRUD operations and an optimistic UI by using the **SWR** library. Data is persisted using **MongoDB**.
+A Next.js app for managing todos, featuring CRUD operations an optimistic UI by using the **SWR** library. Data is persisted using **MongoDB**.
 
-The app is deployed using [Vercel](https://vercel.com/) and can be accessed here: [Todo App](https://todo-app-nextjs-six.vercel.app/).
+The app is deployed on [Vercel](https://vercel.com/) and can be accessed here: [Todo App](https://todo-app-nextjs-six.vercel.app/).
 
 ## Stack
 
