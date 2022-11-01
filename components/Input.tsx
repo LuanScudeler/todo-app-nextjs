@@ -1,15 +1,11 @@
 import { HTMLInputTypeAttribute, useId } from 'react'
 
 export const Input = (props: InputProps) => {
-  const { label, onChange, type, value, name } = props
+  const { label, name, onChange, placeholder, type, value } = props
   const id = useId()
 
   return (
-    <div
-      className={
-        'flex flex-1 py-8 border-solid border-t border-t-indigo-50 justify-center items-center'
-      }
-    >
+    <div>
       <label htmlFor={id} className="font-semibold leading-loose">
         {label}
       </label>
@@ -18,7 +14,7 @@ export const Input = (props: InputProps) => {
         type={type}
         id={id}
         name={name}
-        placeholder="type a new todo"
+        placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required
@@ -31,6 +27,7 @@ interface InputProps {
   label: string
   name?: string
   onChange: (value: string) => void
+  placeholder?: string
   type: HTMLInputTypeAttribute
-  value: string | number
+  value?: string | number
 }
