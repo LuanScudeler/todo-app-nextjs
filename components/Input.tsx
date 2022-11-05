@@ -6,9 +6,11 @@ export const Input = (props: InputProps) => {
 
   return (
     <div>
-      <label htmlFor={id} className="font-semibold leading-loose">
-        {label}
-      </label>
+      {label && (
+        <label htmlFor={id} className="font-semibold leading-loose">
+          {label}
+        </label>
+      )}
       <input
         className="h-12 w-full border px-4 block mb-4"
         type={type}
@@ -24,7 +26,7 @@ export const Input = (props: InputProps) => {
 }
 
 interface InputProps {
-  label: string
+  label?: string
   name?: string
   onChange: (value: string) => void
   placeholder?: string

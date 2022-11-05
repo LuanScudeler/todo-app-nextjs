@@ -9,9 +9,15 @@ export default {
 
 const Template: ComponentStory<typeof Input> = (args) => <Input {...args} />
 
-export const InputWithLabel = Template.bind({})
+const defaultArgs = { type: 'text', onChange: () => {} }
 
+export const InputWithLabel = Template.bind({})
 InputWithLabel.args = {
+  ...defaultArgs,
   label: 'Name',
-  type: 'text',
+}
+
+export const InputNoLabel = Template.bind({})
+InputNoLabel.args = {
+  ...defaultArgs,
 }

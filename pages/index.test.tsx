@@ -138,7 +138,7 @@ describe('Todo app', () => {
       const { user } = setupTest()
       const { renderResult: todoElement } = await getTodoElement(0)
 
-      enterEditMode(user, todoElement)
+      await enterEditMode(user, todoElement)
 
       expect(
         screen.getByRole('button', { name: phrases.saveEditTodoLabel })
@@ -153,7 +153,7 @@ describe('Todo app', () => {
       const { user } = setupTest()
       const { renderResult: todoElement } = await getTodoElement(0)
 
-      enterEditMode(user, todoElement)
+      await enterEditMode(user, todoElement)
 
       const { renderResult: noEditModeTodoElement } = await getTodoElement(1)
       expect(
@@ -190,7 +190,7 @@ const deleteTodoFirstInList = async (user: UserEvent) => {
   return { deletedTodoMock: todoData }
 }
 
-const enterEditMode = (
+const enterEditMode = async (
   user: UserEvent,
   todoElement: BoundFunctions<Queries>
 ) => {
@@ -198,7 +198,7 @@ const enterEditMode = (
     name: phrases.editTodoLabel,
   })
 
-  user.pointer({ target: editButton as Element, keys: '[MouseLeft]' })
+  await user.pointer({ target: editButton as Element, keys: '[MouseLeft]' })
 }
 
 const getTodoElement = async (todoIndex: number) => {
