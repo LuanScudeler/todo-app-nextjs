@@ -16,7 +16,10 @@ const Home: NextPage = () => {
   const [mutationError, setMutationError] = useState<string>()
   const [todoEditingId, setTodoEditingId] = useState<string>()
 
-  const phrases = useStore((state) => state.phrases)
+  const { phrases, editTitle } = useStore(({ phrases, editTitle }) => ({
+    phrases,
+    editTitle,
+  }))
 
   const {
     data: todoItems = [],
@@ -134,7 +137,10 @@ const Home: NextPage = () => {
                       type="button"
                       title={phrases.editTodoLabel}
                       aria-label={phrases.editTodoLabel}
-                      onClick={() => setTodoEditingId(todoItem._id)}
+                      onClick={() => {
+                        editTitle('TEST')
+                        setTodoEditingId(todoItem._id)
+                      }}
                       disabled={!!todoEditingId}
                     >
                       <Pencil
