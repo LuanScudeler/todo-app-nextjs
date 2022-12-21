@@ -15,18 +15,15 @@ import * as api from '../pages/api'
 import Home from './index.page'
 import { UserEvent } from '@testing-library/user-event/dist/types/setup'
 import { phrases } from 'lib/phrases'
-import { AppContext } from 'lib/appContext'
 
 describe('Todo app', () => {
   const setupTest = () => {
     return {
       user: userEvent.setup(),
       ...render(
-        <AppContext.Provider value={{ phrases: phrases }}>
-          <SWRConfig value={{ provider: () => new Map() }}>
-            <Home />
-          </SWRConfig>
-        </AppContext.Provider>
+        <SWRConfig value={{ provider: () => new Map() }}>
+          <Home />
+        </SWRConfig>
       ),
     }
   }

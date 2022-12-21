@@ -1,5 +1,5 @@
-import { AppContext } from 'lib/appContext'
-import { Dispatch, SetStateAction, useContext } from 'react'
+import { useStore } from 'lib/appContext'
+import { Dispatch, SetStateAction } from 'react'
 import { CONTAINERS_WIDTH } from '../index-const'
 
 export const CreateForm = ({
@@ -7,7 +7,7 @@ export const CreateForm = ({
   todoTitle,
   setTodoTitle,
 }: CreateFormProps) => {
-  const { phrases } = useContext(AppContext)
+  const phrases = useStore((state) => state.phrases)
 
   return (
     <div

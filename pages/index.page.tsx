@@ -1,9 +1,9 @@
-import { AppContext } from 'lib/appContext'
-import { Back, Close, Pencil, Save } from 'lib/icons'
+import { useStore } from 'lib/appContext'
+import { Close, Pencil } from 'lib/icons'
 import { uuid } from 'lib/utils/uuid'
 import type { NextPage } from 'next'
 import Head from 'next/head'
-import { Dispatch, SetStateAction, useContext, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Footer } from '../components/Footer'
 import { CreateForm } from './components/CreateForm'
 import { EditForm } from './components/EditForm'
@@ -16,7 +16,7 @@ const Home: NextPage = () => {
   const [mutationError, setMutationError] = useState<string>()
   const [todoEditingId, setTodoEditingId] = useState<string>()
 
-  const { phrases } = useContext(AppContext)
+  const phrases = useStore((state) => state.phrases)
 
   const {
     data: todoItems = [],

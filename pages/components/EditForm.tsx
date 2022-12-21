@@ -1,6 +1,6 @@
-import { AppContext } from 'lib/appContext'
+import { useStore } from 'lib/appContext'
 import { Back, Save } from 'lib/icons'
-import { Dispatch, SetStateAction, useContext } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 
 export const EditForm = ({
   handleEditSubmit,
@@ -9,7 +9,7 @@ export const EditForm = ({
   todoItem,
   setTodoEditingId,
 }: EditFormProps) => {
-  const { phrases } = useContext(AppContext)
+  const phrases = useStore((state) => state.phrases)
 
   return (
     <>

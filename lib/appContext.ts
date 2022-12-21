@@ -1,7 +1,10 @@
-import { createContext } from 'react'
+import { phrases } from './phrases'
+import create from 'zustand'
 
-export const AppContext = createContext<AppContextValue>({ phrases: {} })
+export const useStore = create<Store>((set) => ({
+  phrases,
+}))
 
-interface AppContextValue {
+interface Store {
   phrases: Record<string, string>
 }
