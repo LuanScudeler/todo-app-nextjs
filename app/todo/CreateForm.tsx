@@ -1,6 +1,6 @@
 import { useStore } from 'lib/appContext'
 import { Dispatch, SetStateAction } from 'react'
-import { CONTAINERS_WIDTH } from '../index-const'
+import { CONTAINERS_WIDTH } from './TodoPage.const'
 
 export const CreateForm = ({
   handleSubmit,

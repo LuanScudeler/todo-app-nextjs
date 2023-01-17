@@ -1,14 +1,16 @@
+'use client'
+
 import { useStore } from 'lib/appContext'
 import { Close, Pencil } from 'lib/icons'
 import { uuid } from 'lib/utils/uuid'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useMemo, useState } from 'react'
-import { Footer } from '../components/Footer'
-import { CreateForm } from './components/CreateForm'
-import { EditForm } from './components/EditForm'
-import { useTodos } from './index-api'
-import { CONTAINERS_WIDTH } from './index-const'
+import { Footer } from '../../components/Footer'
+import { CreateForm } from './CreateForm'
+import { EditForm } from './EditForm'
+import { useTodos } from './TodoPage.api'
+import { CONTAINERS_WIDTH } from './TodoPage.const'
 
 const Home: NextPage = () => {
   const [todoTitle, setTodoTitle] = useState<string>('')

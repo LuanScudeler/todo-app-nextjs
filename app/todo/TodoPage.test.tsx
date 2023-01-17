@@ -11,10 +11,15 @@ import { rest } from 'msw'
 import { todosResponseMock } from 'mocks/handlers'
 import { server } from 'mocks/server'
 import { SWRConfig } from 'swr'
-import * as api from '../pages/api'
-import Home from './index.page'
+import * as api from '../../pages/api'
+import Home from './TodoPage'
 import { UserEvent } from '@testing-library/user-event/dist/types/setup'
 import { phrases } from 'lib/phrases'
+
+jest.mock('../pages/api', () => ({
+  __esModule: true,
+  ...jest.requireActual('../pages/api'),
+}))
 
 describe('Todo app', () => {
   const setupTest = () => {

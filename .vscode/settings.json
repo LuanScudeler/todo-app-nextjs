@@ -7,5 +7,11 @@
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "cSpell.words": ["initdb", "nextjs", "TODOS"]
+  "cSpell.words": [
+    "initdb",
+    "nextjs",
+    "TODOS"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

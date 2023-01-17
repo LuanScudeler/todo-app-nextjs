@@ -1,5 +1,4 @@
-import { uuid } from 'lib/utils/uuid'
-import { post, put, remove } from './api'
+import { post, put, remove } from '../../pages/api'
 
 type MutationCall = (
   mutatorCallback: () => Promise<TodoItem[]>,

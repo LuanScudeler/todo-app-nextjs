@@ -1,6 +1,6 @@
 import { getErrorMessage } from 'lib/utils/getErrorMessage'
 import useSWR from 'swr'
-import { fetcher } from './api'
+import { fetcher } from '../../pages/api'
 import { initMutateFunctions } from './initMutateFunctions'
 
 export const useTodos = () => {
