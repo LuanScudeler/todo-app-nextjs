@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react'
 import { Footer } from '../components/Footer'
 import { CreateForm } from './components/CreateForm'
 import { EditForm } from './components/EditForm'
-import { useTodos } from './index-api'
+import { useCreateMutation, useTodos } from './index-api'
 import { CONTAINERS_WIDTH } from './index-const'
 
 const Home: NextPage = () => {
@@ -28,15 +28,13 @@ const Home: NextPage = () => {
     mutate,
   } = useTodos()
 
+  const { mutate: createTodo, error: createTodoError } = useCreateMutation()
+  console.log(createTodoError)
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault()
 
     setTodoTitle('')
-
-    const { error } = await mutate.create({ title: todoTitle, _id: uuid() })
-    error
-      ? setMutationError(phrases.createTodoErrorText)
-      : setMutationError(undefined)
+    createTodo({ title: todoTitle, _id: uuid() })
   }
 
   const handleEditSubmit = async (e: React.SyntheticEvent) => {
@@ -96,7 +94,7 @@ const Home: NextPage = () => {
         </h1>
         <span className="text-red-600">
           {isFetchError && phrases.fetchTodoErrorText}
-          {mutationError}
+          {createTodoError?.message}
         </span>
         <span className="text-neutral-900">
           {isLoading && phrases.loadingText}

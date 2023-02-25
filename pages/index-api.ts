@@ -1,50 +1,45 @@
 import { getErrorMessage } from 'lib/utils/getErrorMessage'
-import useSWR from 'swr'
-import { fetcher } from './api'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { fetcher, post } from './api'
 import { initMutateFunctions } from './initMutateFunctions'
 
+const todoKeys = {
+  all: ['todos'],
+}
+
 export const useTodos = () => {
-  const {
-    data,
-    error,
-    mutate: mutateTodos,
-  } = useSWR<TodoItem[], Error>('/api/todos', fetcher)
+  const mutateTodos = (
+    promise: () => Promise<TodoItem[]>,
+    {}
+  ): TodoItem[] | undefined => undefined
 
-  const todoItems = data || []
+  const { data, isError, isLoading } = useQuery<TodoItem[], any>(
+    todoKeys.all,
+    () => fetcher('/api/todos')
+  )
 
-  const callMutation = async (
-    mutatorCallback: () => Promise<TodoItem[]>,
-    optimisticData: TodoItem[]
-  ): MutationReturn => {
-    let error = ''
-    let result
-
-    try {
-      result = await mutateTodos(mutatorCallback, {
-        optimisticData,
-        rollbackOnError: true,
-      })
-    } catch (err) {
-      error = getErrorMessage(err)
-    }
-
-    return {
-      error,
-      result,
-    }
-  }
-
-  const { createMutation, updateMutation, deleteMutation } =
-    initMutateFunctions(todoItems, callMutation)
+  const { updateMutation, deleteMutation } = initMutateFunctions(null, null)
 
   return {
     data,
-    isLoading: !error && !data,
-    isError: !!error,
+    isLoading,
+    isError,
+    useCreateMutation,
     mutate: {
-      create: createMutation,
       update: updateMutation,
       delete: deleteMutation,
     },
   }
 }
+
+export const useCreateMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<any, Error, CreateTodoItem>(createTodo, {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(todoKeys.all)
+    },
+  })
+}
+
+const createTodo = async (body: CreateTodoItem) => post('/api/todo', body)

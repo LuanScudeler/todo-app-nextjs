@@ -1,4 +1,5 @@
 import { uuid } from 'lib/utils/uuid'
+import { useMutation } from '@tanstack/react-query'
 import { post, put, remove } from './api'
 
 type MutationCall = (
@@ -10,22 +11,6 @@ export const initMutateFunctions = (
   todoItems: TodoItem[],
   callMutation: MutationCall
 ) => {
-  const createMutation = async (todoItem: CreateTodoItem) => {
-    const optimisticData = [
-      ...todoItems,
-      {
-        timestamp: new Date().toISOString(),
-        title: todoItem.title,
-        _id: todoItem._id,
-      },
-    ]
-
-    return callMutation(
-      async () => createTodo(todoItem, optimisticData),
-      optimisticData
-    )
-  }
-
   const updateMutation = async (todoItem: UpdateTodoItem) => {
     const optimisticData = [...todoItems]
     const updateIndex = optimisticData.findIndex(
@@ -56,16 +41,9 @@ export const initMutateFunctions = (
   }
 
   return {
-    createMutation,
     updateMutation,
     deleteMutation,
   }
-}
-
-const createTodo = async (body: CreateTodoItem, optimisticData: TodoItem[]) => {
-  await post('/api/todo', body)
-
-  return optimisticData
 }
 
 const updateTodo = async (body: UpdateTodoItem, optimisticData: TodoItem[]) => {
